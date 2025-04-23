@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,6 @@ public static class CatalogApi
             .WithDescription("Search the catalog for items related to the specified text")
             .WithTags("Search");
 
-                // Routes for resolving catalog items using AI.
         v2.MapGet("/items/withsemanticrelevance", GetItemsBySemanticRelevance)
             .WithName("GetRelevantItems-V2")
             .WithSummary("Search catalog for relevant items")
@@ -108,6 +107,23 @@ public static class CatalogApi
             .WithName("DeleteItem")
             .WithSummary("Delete catalog item")
             .WithDescription("Delete the specified catalog item");
+
+        // Routes for promotional discounts
+        api.MapPost("/discounts", CreateDiscount)
+            .WithName("CreateDiscount")
+            .WithSummary("Create a promotional discount")
+            .WithDescription("Create a new promotional discount in the catalog")
+            .WithTags("Discounts");
+        api.MapPut("/discounts/{id:int}", UpdateDiscount)
+            .WithName("UpdateDiscount")
+            .WithSummary("Update a promotional discount")
+            .WithDescription("Update an existing promotional discount in the catalog")
+            .WithTags("Discounts");
+        api.MapGet("/discounts/{id:int}", GetDiscountById)
+            .WithName("GetDiscountById")
+            .WithSummary("Get a promotional discount")
+            .WithDescription("Get a promotional discount by its ID")
+            .WithTags("Discounts");
 
         return app;
     }
@@ -228,7 +244,6 @@ public static class CatalogApi
         [AsParameters] PaginationRequest paginationRequest,
         [AsParameters] CatalogServices services,
         [Description("The text string to use when search for related items in the catalog")] string text)
-
     {
         return await GetItemsBySemanticRelevance(paginationRequest, services, text);
     }
@@ -397,20 +412,22 @@ public static class CatalogApi
         return TypedResults.NoContent();
     }
 
-    private static string GetImageMimeTypeFromImageFileExtension(string extension) => extension switch
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    public static async Task<Created> CreateDiscount(
+        [AsParameters] CatalogServices services,
+        Discount discount)
     {
-        ".png" => "image/png",
-        ".gif" => "image/gif",
-        ".jpg" or ".jpeg" => "image/jpeg",
-        ".bmp" => "image/bmp",
-        ".tiff" => "image/tiff",
-        ".wmf" => "image/wmf",
-        ".jp2" => "image/jp2",
-        ".svg" => "image/svg+xml",
-        ".webp" => "image/webp",
-        _ => "application/octet-stream",
-    };
+        services.Context.Discounts.Add(discount);
+        await services.Context.SaveChangesAsync();
 
-    public static string GetFullPath(string contentRootPath, string pictureFileName) =>
-        Path.Combine(contentRootPath, "Pics", pictureFileName);
-}
+        return TypedResults.Created($"/api/catalog/discounts/{discount.Id}");
+    }
+
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    public static async Task<Results<Ok<Discount>, NotFound, BadRequest<ProblemDetails>>> UpdateDiscount(
+        HttpContext httpContext,
+        [Description("The id of the discount to update")] int id,
+        [AsParameters] CatalogServices services,
+        Discount discountToUpdate)
+    {
+        var
