@@ -1,0 +1,44 @@
+<form id="promotion-form">
+    <label for="product-id">Product ID:</label>
+    <input type="text" id="product-id" name="product-id" required />
+    <label for="discount-percentage">Discount Percentage:</label>
+    <input type="number" id="discount-percentage" name="discount-percentage" required />
+    <label for="discount-description">Discount Description:</label>
+    <input type="text" id="discount-description" name="discount-description" required />
+    <label for="start-date">Start Date:</label>
+    <input type="date" id="start-date" name="start-date" required />
+    <label for="end-date">End Date:</label>
+    <input type="date" id="end-date" name="end-date" required />
+    <label for="badge-design">Badge Design URL:</label>
+    <input type="text" id="badge-design" name="badge-design" required />
+    <button type="submit">Save Promotion</button>
+</form>
+<script>
+document.getElementById('promotion-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const promotionData = {
+        productId: document.getElementById('product-id').value,
+        promotionalDiscountPercentage: document.getElementById('discount-percentage').value,
+        promotionalDiscountDescription: document.getElementById('discount-description').value,
+        promotionStartDate: document.getElementById('start-date').value,
+        promotionEndDate: document.getElementById('end-date').value,
+        badgeDesign: document.getElementById('badge-design').value
+    };
+    fetch('/api/promotions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(promotionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Promotion updated successfully.');
+        } else {
+            alert('Error updating promotion: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
