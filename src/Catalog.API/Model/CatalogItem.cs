@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Pgvector;
 
@@ -31,7 +31,6 @@ public class CatalogItem
     // Available stock at which we should reorder
     public int RestockThreshold { get; set; }
 
-
     // Maximum number of units that can be in-stock at any time (due to physicial/logistical constraints in warehouses)
     public int MaxStockThreshold { get; set; }
 
@@ -44,8 +43,12 @@ public class CatalogItem
     /// </summary>
     public bool OnReorder { get; set; }
 
-    public CatalogItem() { }
+    // New fields for promotional discounts
+    public decimal Discount { get; set; }
+    public DateTime DiscountStartDate { get; set; }
+    public DateTime DiscountEndDate { get; set; }
 
+    public CatalogItem() { }
 
     /// <summary>
     /// Decrements the quantity of a particular item in inventory and ensures the restockThreshold hasn't
@@ -58,7 +61,6 @@ public class CatalogItem
     /// </summary>
     /// <param name="quantityDesired"></param>
     /// <returns>int: Returns the number actually removed from stock. </returns>
-    /// 
     public int RemoveStock(int quantityDesired)
     {
         if (AvailableStock == 0)
