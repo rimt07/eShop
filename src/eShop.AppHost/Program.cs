@@ -78,7 +78,12 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName)
 bool useOpenAI = false;
 if (useOpenAI)
 {
-    builder.AddOpenAI(catalogApi, webApp);
+    services.AddSingleton<IOpenAIService>(provider => 
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var apiKey = config["OpenAI:ApiKey"];
+    return new OpenAIService(apiKey);
+});
 }
 
 bool useOllama = false;
@@ -102,7 +107,12 @@ identityApi.WithEnvironment("BasketApiClient", basketApi.GetEndpoint("http"))
 bool useOpenAI = false;
 if (useOpenAI)
 {
-    builder.AddOpenAI(catalogApi, webApp);
+    services.AddSingleton<IOpenAIService>(provider => 
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var apiKey = config["OpenAI:ApiKey"];
+    return new OpenAIService(apiKey);
+});
 }
 
 bool useOllama = false;
