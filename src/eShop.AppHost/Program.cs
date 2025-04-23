@@ -98,6 +98,19 @@ identityApi.WithEnvironment("BasketApiClient", basketApi.GetEndpoint("http"))
            .WithEnvironment("WebhooksWebClient", webhooksClient.GetEndpoint(launchProfileName))
            .WithEnvironment("WebAppClient", webApp.GetEndpoint(launchProfileName));
 
+// set to true if you want to use OpenAI
+bool useOpenAI = false;
+if (useOpenAI)
+{
+    builder.AddOpenAI(catalogApi, webApp);
+}
+
+bool useOllama = false;
+if (useOllama)
+{
+    builder.AddOllama(catalogApi, webApp);
+}
+
 builder.Build().Run();
 
 // For test use only.
