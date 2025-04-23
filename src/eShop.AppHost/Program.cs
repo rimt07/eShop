@@ -78,7 +78,12 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName)
 bool useOpenAI = false;
 if (useOpenAI)
 {
-    builder.AddOpenAI(catalogApi, webApp);
+    services.AddSingleton<IOpenAIService>(provider => 
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var apiKey = config["OpenAI:ApiKey"];
+    return new OpenAIService(apiKey);
+});
 }
 
 bool useOllama = false;
@@ -97,6 +102,24 @@ identityApi.WithEnvironment("BasketApiClient", basketApi.GetEndpoint("http"))
            .WithEnvironment("WebhooksApiClient", webHooksApi.GetEndpoint("http"))
            .WithEnvironment("WebhooksWebClient", webhooksClient.GetEndpoint(launchProfileName))
            .WithEnvironment("WebAppClient", webApp.GetEndpoint(launchProfileName));
+
+// set to true if you want to use OpenAI
+bool useOpenAI = false;
+if (useOpenAI)
+{
+    services.AddSingleton<IOpenAIService>(provider => 
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var apiKey = config["OpenAI:ApiKey"];
+    return new OpenAIService(apiKey);
+});
+}
+
+bool useOllama = false;
+if (useOllama)
+{
+    builder.AddOllama(catalogApi, webApp);
+}
 
 builder.Build().Run();
 

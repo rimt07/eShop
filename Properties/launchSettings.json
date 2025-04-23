@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "eShop.AppHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OPENAI_API_KEY": "your-secure-api-key"
+      }
+    }
+  }
+}
